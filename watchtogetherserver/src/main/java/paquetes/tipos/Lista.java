@@ -15,7 +15,7 @@ public class Lista {
 	private List<Reproductor> reproductores;
 	private LinkedList<String> medias;
 	private ConcurrentHashMap<Reproductor, Reproductor> viendo = new ConcurrentHashMap<Reproductor, Reproductor>();
-	private int delayEntreMedias = 10;
+	private int delayEntreMedias = 35;
 	private String reproduciendo = "";
 	private long timeStartedMedia = 0L;
 	private long timeToTalWithSkip = 0L;

@@ -11,7 +11,7 @@ public class PacketPause extends Packet {
 	
 	
 	public PacketPause() {
-		// TODO Auto-generated constructor stub
+		
 	}
 	
 	public PacketPause(boolean pausa) {

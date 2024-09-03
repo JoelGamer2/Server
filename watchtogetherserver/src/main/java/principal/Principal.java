@@ -22,7 +22,7 @@ import reproductor.Reproductor;
 public class Principal {
 
 	public static ConcurrentHashMap<Reproductor, Reproductor> reproductores = new ConcurrentHashMap<>();
-	private static final int PUERTO = 1234;
+	private static final int PUERTO = 1411;
 	private static ExecutorService executor = Executors.newFixedThreadPool(100);
 	public static Lista listaDeReproduccion;
 	public static void main(String[] args) {
