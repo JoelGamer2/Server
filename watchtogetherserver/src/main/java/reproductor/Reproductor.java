@@ -38,7 +38,6 @@ public class Reproductor {
 		leer =new ThreadLeer();
 		leer.start();
 		if(Principal.listaDeReproduccion != null) {
-			System.out.println("YES");
 			Util.setTime(3, new TimerTask() {
 				
 				@Override

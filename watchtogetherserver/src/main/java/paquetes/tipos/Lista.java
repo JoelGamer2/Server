@@ -102,8 +102,11 @@ public class Lista {
 	}
 
 	public synchronized void borrarReproductor(Reproductor reproductor) {
-		if (viendo.contains(reproductor))
+		if (viendo.contains(reproductor)) {
 			viendo.remove(reproductor);
+			if(viendo.size() == 0)
+				cancelarLista();
+		}
 
 		if (reproductores.contains(reproductor))
 			reproductores.remove(reproductor);
@@ -131,12 +134,7 @@ public class Lista {
 				System.out.println("[Lista] Delay entre medias establecido en: " + args[2]);
 			}
 			else if (args[1].equals("stop")) {
-				medias.clear();
-				reproductores.clear();
-				for(Reproductor re : viendo.keySet())
-					re.enviarPaquete(new PacketSetMedia("quitMedia").toString());
-				Principal.listaDeReproduccion = null;
-				System.out.println("[Lista] lista cancelada y media cancelado");
+				cancelarLista();
 			}else if(args[1].equals("list"))
 				System.out.println("[Lista] Quedan los siguientes ficheros por reproducir:\n"+medias);
 			else if(args[1].equals("bucle") && args.length > 2) {
@@ -148,6 +146,15 @@ public class Lista {
 
 	}
 
+	private synchronized void cancelarLista() {
+		medias.clear();
+		reproductores.clear();
+		for(Reproductor re : viendo.keySet())
+			re.enviarPaquete(new PacketSetMedia("quitMedia").toString());
+		Principal.listaDeReproduccion = null;
+		System.out.println("[Lista] lista cancelada y media cancelado");
+	}
+	
 	public synchronized void setTime(long time) {
 		this.timeStartedMedia = System.currentTimeMillis();
 		this.timeToTalWithSkip = time;
