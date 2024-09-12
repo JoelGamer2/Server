@@ -4,7 +4,10 @@ import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Scanner;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
@@ -86,11 +89,16 @@ public class Principal {
 					}
 
 					else {
-						String[] comando = linea.split(" ");
+						List<String> comando = new ArrayList<String>(Arrays.asList(linea.split(" ")));
 						listaDeReproduccion = new Lista(new ArrayList<Reproductor>(reproductores.values()));
-						listaDeReproduccion.setDelay(comando.length > 1 ? Integer.parseInt(comando[1].trim()) : 15);
-						listaDeReproduccion.agregar(comando[0]);
-						listaDeReproduccion.pasarAlSiguiente();
+						boolean tieneCustomDelay =  esNumero(comando.get(0));
+						int delay = tieneCustomDelay ? Integer.parseInt(comando.get(0)) : 15;
+						listaDeReproduccion.setDelay(delay);
+						String path = String.join(" ", tieneCustomDelay ? comando.subList(1, comando.size()) : comando);
+						if(path!= null) {
+							listaDeReproduccion.agregar(path);
+							listaDeReproduccion.pasarAlSiguiente();
+						}
 
 					}
 				} catch (Exception e) {
@@ -100,6 +108,15 @@ public class Principal {
 		});
 	}
 
+
+	private static boolean esNumero(String supuesto) {
+		try {
+			Integer.parseInt(supuesto);
+			return true;
+		} catch (Exception e) {
+			return false;
+		}
+	}
 	
 	public static void setMediaSolo(String path, int delay, Reproductor reproductor, long time, boolean pausa) {
 		
@@ -123,9 +140,12 @@ public class Principal {
 	
 	public static void setMedia(String path, int delay) {
 
-		sendBroadcast(new PacketSetMedia(path).toString(), null);
+		try {
+			String url = URLEncoder.encode(path,  "UTF-8");
+			url = url.replace("+", "%20");
+			sendBroadcast(new PacketSetMedia(url).toString(), null);
 
-		Util.setTime(delay, new TimerTask() {
+			Util.setTime(delay, new TimerTask() {
 			
 			@Override
 			public void run() {
@@ -133,6 +153,9 @@ public class Principal {
 				
 			}
 		});
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	public static void sendBroadcast(String data, Reproductor sendBy) {
