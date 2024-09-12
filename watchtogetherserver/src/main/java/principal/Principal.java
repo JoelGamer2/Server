@@ -8,7 +8,9 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
+import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -24,7 +26,7 @@ import reproductor.Reproductor;
 
 public class Principal {
 
-	public static ConcurrentHashMap<Reproductor, Reproductor> reproductores = new ConcurrentHashMap<>();
+	public static Map<Reproductor, Reproductor> reproductores = new ConcurrentHashMap<>();
 	private static final int PUERTO = 1411;
 	private static ExecutorService executor = Executors.newFixedThreadPool(100);
 	public static Lista listaDeReproduccion;
@@ -76,8 +78,11 @@ public class Principal {
 						if (lista.exists()) {
 							sendBroadcast(new PacketPing().toString(), null);
 							listaDeReproduccion = new Lista(new ArrayList<Reproductor>(reproductores.values()));
+							int delay = comando.length > 2 && esNumero(comando[2]) ? Integer.parseInt(comando[2]) : -1;
+							if(delay != -1)
+								listaDeReproduccion.setDelay(delay);
 							listaDeReproduccion.setLista(lista);
-							System.out.println("Lista puesta");
+							System.out.println(String.format("Lista puesta%s", delay != -1 ? " con delay " + delay : ""));
 
 						}else {
 							System.out.println(String.format("La lista con el nombre %s no existe", comando[1]));
@@ -138,14 +143,14 @@ public class Principal {
 		
 	}
 	
-	public static void setMedia(String path, int delay) {
+	public static Timer setMedia(String path, int delay) {
 
 		try {
 			String url = URLEncoder.encode(path,  "UTF-8");
 			url = url.replace("+", "%20");
 			sendBroadcast(new PacketSetMedia(url).toString(), null);
 
-			Util.setTime(delay, new TimerTask() {
+			Timer timer = Util.setTime(delay, new TimerTask() {
 			
 			@Override
 			public void run() {
@@ -153,8 +158,10 @@ public class Principal {
 				
 			}
 		});
+			return timer;
 		} catch (Exception e) {
 			e.printStackTrace();
+			return null;
 		}
 	}
 

@@ -19,6 +19,15 @@ public class PacketTerminado extends Packet {
 		reproductor.viendo = false;
 		if(Principal.listaDeReproduccion != null)
 			Principal.listaDeReproduccion.termino(reproductor);
+		System.out.println("[Reproductor] Episodio Terminado!");
 	}
+	
+	
+	@Override
+	public String toString() {
+		JSONObject json = new JSONObject();
+		json.put("tipo", "terminated");
+		return json.toString();
+	} 
 	
 }

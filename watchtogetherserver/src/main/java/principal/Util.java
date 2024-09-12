@@ -5,13 +5,13 @@ import java.util.TimerTask;
 
 public class Util {
 
-	public static void setTime(int segundos, TimerTask task) {
+	public static Timer setTime(int segundos, TimerTask task) {
 		
 
 		Timer timer = new Timer();
-
-
 		timer.schedule(task, segundos * 1000);
+
+		return timer;
 	}
 	
 	

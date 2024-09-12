@@ -22,6 +22,7 @@ private String path;
 	public void handleData(JSONObject data, Reproductor reproductor) {
 	
 		reproductor.viendo = true;
+		System.out.println("[Reproductor] Medio Puesto!");
 	}
 
 	

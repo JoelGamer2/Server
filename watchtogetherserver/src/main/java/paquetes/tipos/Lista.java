@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.Timer;
 import java.util.concurrent.ConcurrentHashMap;
 
 import principal.Principal;
@@ -19,6 +20,7 @@ public class Lista {
 	private String reproduciendo = "";
 	private long timeStartedMedia = 0L;
 	private long timeToTalWithSkip = 0L;
+	private Timer timerEpisodioCargando;
 	private boolean bucle = false;
 	
 	public Lista(List<Reproductor> reproductores) {
@@ -45,7 +47,7 @@ public class Lista {
 				reproduciendo = medias.getFirst();
 				medias.removeFirst();
 			}
-			Principal.setMedia(reproduciendo, delayEntreMedias);
+			timerEpisodioCargando = Principal.setMedia(reproduciendo, delayEntreMedias);
 			timeStartedMedia = System.currentTimeMillis() + (delayEntreMedias * 1000);
 			timeToTalWithSkip = 0L;
 			for (Reproductor re : reproductores)
@@ -150,7 +152,11 @@ public class Lista {
 		medias.clear();
 		reproductores.clear();
 		for(Reproductor re : viendo.keySet())
-			re.enviarPaquete(new PacketSetMedia("quitMedia").toString());
+			re.enviarPaquete(new PacketTerminado().toString());
+		if(timerEpisodioCargando != null) {
+			timerEpisodioCargando.cancel();
+			timerEpisodioCargando = null;
+		}
 		Principal.listaDeReproduccion = null;
 		System.out.println("[Lista] lista cancelada y media cancelado");
 	}
