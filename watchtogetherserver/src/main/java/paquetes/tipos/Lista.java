@@ -151,8 +151,10 @@ public class Lista {
 	private synchronized void cancelarLista() {
 		medias.clear();
 		reproductores.clear();
-		for(Reproductor re : viendo.keySet())
+		for(Reproductor re : viendo.keySet()) {
+			re.enviarPaquete(new PacketStartMedia().toString()); //Intento de arreglo bug -> si el medio no esta iniciado no se cancelaba
 			re.enviarPaquete(new PacketTerminado().toString());
+		}
 		if(timerEpisodioCargando != null) {
 			timerEpisodioCargando.cancel();
 			timerEpisodioCargando = null;

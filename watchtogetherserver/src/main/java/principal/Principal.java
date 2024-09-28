@@ -30,6 +30,7 @@ public class Principal {
 	private static final int PUERTO = 1411;
 	private static ExecutorService executor = Executors.newFixedThreadPool(100);
 	public static Lista listaDeReproduccion;
+
 	public static void main(String[] args) {
 		executor.submit(() -> {
 
@@ -61,16 +62,16 @@ public class Principal {
 					String linea = scanner.nextLine();
 					if (linea.equals("pause")) {
 						sendBroadcast(new PacketPause(true).toString(), null);
-						if(listaDeReproduccion != null)
+						if (listaDeReproduccion != null)
 							listaDeReproduccion.pause(null, true);
 					} else if (linea.equals("play")) {
 						sendBroadcast(new PacketPause(false).toString(), null);
-						if(listaDeReproduccion != null)
+						if (listaDeReproduccion != null)
 							listaDeReproduccion.pause(null, false);
 					} else if (linea.contains("settime")) {
 						long time = Long.parseLong(linea.split(" ")[1]) * 1000;
 						sendBroadcast(new PacketSetTime(time).toString(), null);
-						if(listaDeReproduccion != null)
+						if (listaDeReproduccion != null)
 							listaDeReproduccion.setTime(time);
 					} else if (linea.contains("setlista")) {
 						String[] comando = linea.split(" ");
@@ -79,28 +80,29 @@ public class Principal {
 							sendBroadcast(new PacketPing().toString(), null);
 							listaDeReproduccion = new Lista(new ArrayList<Reproductor>(reproductores.values()));
 							int delay = comando.length > 2 && esNumero(comando[2]) ? Integer.parseInt(comando[2]) : -1;
-							if(delay != -1)
+							if (delay != -1)
 								listaDeReproduccion.setDelay(delay);
 							listaDeReproduccion.setLista(lista);
-							System.out.println(String.format("Lista puesta%s", delay != -1 ? " con delay " + delay : ""));
+							System.out
+									.println(String.format("Lista puesta%s", delay != -1 ? " con delay " + delay : ""));
 
-						}else {
+						} else {
 							System.out.println(String.format("La lista con el nombre %s no existe", comando[1]));
 						}
 
-					}else if(linea.contains("lista")){
-						if(listaDeReproduccion != null)
+					} else if (linea.contains("lista")) {
+						if (listaDeReproduccion != null)
 							listaDeReproduccion.parseCommand(linea);
 					}
 
 					else {
 						List<String> comando = new ArrayList<String>(Arrays.asList(linea.split(" ")));
 						listaDeReproduccion = new Lista(new ArrayList<Reproductor>(reproductores.values()));
-						boolean tieneCustomDelay =  esNumero(comando.get(0));
+						boolean tieneCustomDelay = esNumero(comando.get(0));
 						int delay = tieneCustomDelay ? Integer.parseInt(comando.get(0)) : 15;
 						listaDeReproduccion.setDelay(delay);
 						String path = String.join(" ", tieneCustomDelay ? comando.subList(1, comando.size()) : comando);
-						if(path!= null) {
+						if (path != null) {
 							listaDeReproduccion.agregar(path);
 							listaDeReproduccion.pasarAlSiguiente();
 						}
@@ -113,7 +115,6 @@ public class Principal {
 		});
 	}
 
-
 	private static boolean esNumero(String supuesto) {
 		try {
 			Integer.parseInt(supuesto);
@@ -122,47 +123,56 @@ public class Principal {
 			return false;
 		}
 	}
-	
+
 	public static void setMediaSolo(String path, int delay, Reproductor reproductor, long time, boolean pausa) {
-		
+		String encodedUrl = encodeURL(path);
+		if (encodedUrl != null) {
+			reproductor.enviarPaquete(new PacketSetMedia(encodedUrl).toString());
 
-		reproductor.enviarPaquete(new PacketSetMedia(path).toString());
+			Util.setTime(delay, new TimerTask() {
 
-		Util.setTime(delay, new TimerTask() {
-			
-			@Override
-			public void run() {
-				reproductor.enviarPaquete(new PacketStartMedia().toString());
-				if(pausa) 
-					reproductor.enviarPaquete(new PacketPause(true).toString());
-				reproductor.enviarPaquete(new PacketSetTime(pausa ? time : time+(delay*1000)).toString());
+				@Override
+				public void run() {
+					reproductor.enviarPaquete(new PacketStartMedia().toString());
+					if (pausa)
+						reproductor.enviarPaquete(new PacketPause(true).toString());
+					reproductor.enviarPaquete(new PacketSetTime(pausa ? time : time + (delay * 1000)).toString());
 
-				
-			}
-		});
-		
+				}
+			});
+		}
+
 	}
-	
-	public static Timer setMedia(String path, int delay) {
 
+	private static String encodeURL(String path) {
 		try {
-			String url = URLEncoder.encode(path,  "UTF-8");
+			String url = URLEncoder.encode(path, "UTF-8");
 			url = url.replace("+", "%20");
-			sendBroadcast(new PacketSetMedia(url).toString(), null);
-
-			Timer timer = Util.setTime(delay, new TimerTask() {
-			
-			@Override
-			public void run() {
-				sendBroadcast(new PacketStartMedia().toString(), null);
-				
-			}
-		});
-			return timer;
+			return url;
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
 		}
+	}
+
+	public static Timer setMedia(String path, int delay) {
+
+		String encodedUrl = encodeURL(path);
+		if (encodedUrl != null) {
+			sendBroadcast(new PacketSetMedia(encodeURL(path)).toString(), null);
+
+			Timer timer = Util.setTime(delay, new TimerTask() {
+
+				@Override
+				public void run() {
+					sendBroadcast(new PacketStartMedia().toString(), null);
+
+				}
+			});
+			return timer;
+		} else
+			return null;
+
 	}
 
 	public static void sendBroadcast(String data, Reproductor sendBy) {
@@ -170,7 +180,5 @@ public class Principal {
 			if (!re.equals(sendBy))
 				re.enviarPaquete(data);
 	}
-
-
 
 }
