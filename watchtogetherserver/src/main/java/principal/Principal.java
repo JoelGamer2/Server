@@ -42,7 +42,7 @@ public class Principal {
 					Socket clientSocket = serverSocket.accept();
 					Reproductor nuevoJugador = new Reproductor(clientSocket);
 					reproductores.put(nuevoJugador, nuevoJugador);
-					System.out.println("Reproductor conectado" + reproductores);
+					System.out.println("Reproductor conectado");
 
 				}
 				serverSocket.close();
