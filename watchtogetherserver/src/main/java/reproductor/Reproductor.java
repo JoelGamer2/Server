@@ -42,7 +42,8 @@ public class Reproductor {
 				
 				@Override
 				public void run() {
-					Principal.listaDeReproduccion.agregarReproductor(Reproductor.this);
+					if(Principal.listaDeReproduccion != null)
+						Principal.listaDeReproduccion.agregarReproductor(Reproductor.this);
 					
 				}
 			});
