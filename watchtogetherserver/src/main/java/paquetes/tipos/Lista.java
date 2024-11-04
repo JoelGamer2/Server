@@ -31,7 +31,7 @@ public class Lista {
 	}
 
 	public void agregar(String path) {
-		if (!medias.contains(path))
+		if (!path.startsWith("+") && !medias.contains(path))
 			medias.add(path);
 	}
 
