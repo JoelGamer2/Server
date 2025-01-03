@@ -31,8 +31,18 @@ public class Lista {
 	}
 
 	public void agregar(String path) {
+		if(path.contains(".txt")) {
+			File subLista = new File(path);
+			if(subLista.exists())
+				setLista(subLista, reproduciendo == null);
+			return;
+		}
+		
+		
 		if (!path.startsWith("+") && !medias.contains(path))
 			medias.add(path);
+		
+		
 	}
 
 	public void borrar(String path) {
@@ -76,14 +86,15 @@ public class Lista {
 			this.delayEntreMedias = delay;
 	}
 
-	public void setLista(File lista) {
+	public void setLista(File lista, boolean siguiente) {
 		try (Scanner scanner = new Scanner(lista)) {
 			while (scanner.hasNextLine())
 				agregar(scanner.nextLine().trim());
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
-		pasarAlSiguiente();
+		if(siguiente)
+			pasarAlSiguiente();
 	}
 
 	public String getViendo() {
@@ -128,8 +139,8 @@ public class Lista {
 				System.out.println("[Lista] fichero " + args[2] + " borrado con exito");
 			}
 			else if (args[1].equals("skip")) {
+				System.out.println("[Lista] fichero " + reproduciendo + " saltado con exito");
 				pasarAlSiguiente();
-				System.out.println("[Lista] fichero " + viendo + " saltado con exito");
 			}
 			else if (args[1].equals("delay") && args.length > 2) {
 				setDelay(Integer.parseInt(args[2]));

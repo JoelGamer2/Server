@@ -82,7 +82,7 @@ public class Principal {
 							int delay = comando.length > 2 && esNumero(comando[2]) ? Integer.parseInt(comando[2]) : -1;
 							if (delay != -1)
 								listaDeReproduccion.setDelay(delay);
-							listaDeReproduccion.setLista(lista);
+							listaDeReproduccion.setLista(lista, true);
 							System.out
 									.println(String.format("Lista puesta%s", delay != -1 ? " con delay " + delay : ""));
 
